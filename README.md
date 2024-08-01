@@ -3,7 +3,7 @@ Giphy, Kotlin, Retrofit, Glide
 
 https://github.com/difawitsqard/android_giphyapp
 
-##Giphy Api 
+## Giphy Api 
 https://developers.giphy.com/docs/api/
 
 ## Screenshoots
