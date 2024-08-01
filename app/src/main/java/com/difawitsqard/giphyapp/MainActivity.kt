@@ -15,6 +15,10 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
+    private val recyclerView: RecyclerView by lazy { findViewById<RecyclerView>(R.id.rvGif) }
+    private val gifs = mutableListOf<DataObject>()
+    private val adapter: GifsAdapter by lazy { GifsAdapter(this, gifs) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -22,20 +26,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getGifs() {
-        val recyclerView = findViewById<RecyclerView>(R.id.rvGif)
-        val gifs = mutableListOf<DataObject>()
-        val adapter = GifsAdapter(this, gifs)
-
         recyclerView.adapter = adapter
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = GridLayoutManager(this, 2)
 
         adapter.setOnItemClickListener(object : GifsAdapter.OnItemClickListener {
             override fun onItemClick(position: Int) {
-                val intent = Intent(this@MainActivity, GifDetailActivity::class.java)
-                intent.putExtra("url", gifs[position].images.ogImage.url)
-                intent.putExtra("title", gifs[position].title)
-                intent.putExtra("source_tld", gifs[position].source_tld)
+                val intent = Intent(this@MainActivity, GifDetailActivity::class.java).apply {
+                    putExtra("url", gifs[position].images.ogImage.url)
+                    putExtra("title", gifs[position].title)
+                    putExtra("source_tld", gifs[position].source_tld)
+                }
                 startActivities(arrayOf(intent))
             }
         })
@@ -44,13 +45,9 @@ class MainActivity : AppCompatActivity() {
         val call = apiService.getGifs()
         call.enqueue(object : Callback<DataResult> {
             override fun onResponse(call: Call<DataResult>, response: Response<DataResult>) {
-                if (response.isSuccessful) {
-                    val data = response.body()
-                    if (data != null) {
-                        Log.d("MainActivity", "onResponse: noResponse")
-                    }
-                    // add all data to gifs
-                    gifs.addAll(data!!.res)
+                response.body()?.let { data ->
+                    //Log.d("MainActivity", data.res.toString())
+                    gifs.addAll(data.res)
                     adapter.notifyDataSetChanged()
                 }
             }
